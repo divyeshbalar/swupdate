@@ -1,0 +1,73 @@
+choice
+	prompt "Bootloader (U-Boot, ..)"
+	default UBOOT
+	help
+	  Choose the bootloader
+
+config BOOTLOADER_EBG
+	bool "EFI Boot Guard"
+	depends on HAVE_LIBEBGENV
+	depends on HAVE_ZLIB
+	help
+	  Support for EFI Boot Guard
+	  https://github.com/siemens/efibootguard
+
+comment "EFI Boot Guard needs libebgenv and libz"
+	depends on !HAVE_ZLIB || !HAVE_LIBEBGENV
+
+config UBOOT
+	bool "U-Boot"
+	depends on HAVE_LIBUBOOTENV
+	depends on HAVE_ZLIB
+	help
+	  Support for U-Boot
+	  https://www.denx.de/wiki/U-Boot
+
+config BOOTLOADER_NONE
+	bool "Environment in RAM"
+	help
+	  This simulates the interface to a bootloader.
+	  Bootloader environment is just maitained in RAM
+	  and lost when SWUpdate exits.
+
+config BOOTLOADER_GRUB
+	bool "GRUB"
+	help
+	  Support for GRUB
+	  https://www.gnu.org/software/grub/
+endchoice
+
+config UBOOT_FWENV
+	string "U-Boot Environment Configuration file"
+	depends on UBOOT
+	default "/etc/fw_env.config"
+	help
+	  This is the file described in U-Boot documentation
+	  in the tools directory. It tells where the U-Boot
+	  environment is saved.
+
+config UBOOT_NEWAPI
+	bool "Link to new libubootenv API (LGPL-2.1)"
+	depends on UBOOT
+	help
+	  Use a replacement of tools/env from U-Boot
+	  This is to link to libubootenv
+
+comment "U-Boot support needs libubootenv, libz"
+	depends on !HAVE_LIBUBOOTENV || !HAVE_ZLIB
+
+config UBOOT_DEFAULTENV
+	string "U-Boot Initial Environment file"
+	depends on UBOOT_NEWAPI
+	default "/etc/u-boot-initial-env"
+	help
+	  This is the file with the initial environment delivered
+	  with the bootloader. It is used by SWUpdate if no environment
+	  is found on the storage.
+
+config GRUBENV_PATH
+	string "GRUB Environment block file path"
+	depends on BOOTLOADER_GRUB
+	default "/boot/efi/EFI/BOOT/grub/grubenv"
+	help
+	  Provide path to GRUB environment block file
